@@ -1,4 +1,4 @@
-package com.ood.project.TrelloClone.model;
+package com.ood.project.TrelloClone.model.enitity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,5 +22,8 @@ public class TaskComment {
     @NonNull
     private String comment;
     @NonNull
-    private long taskID;
+    @ManyToOne
+    @JoinColumn(name = "taskID")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Task task;
 }

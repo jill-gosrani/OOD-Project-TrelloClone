@@ -1,10 +1,8 @@
-package com.ood.project.TrelloClone.model;
+package com.ood.project.TrelloClone.model.task;
 
-import com.ood.project.TrelloClone.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 
 
 @Data

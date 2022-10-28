@@ -1,6 +1,6 @@
 package com.ood.project.TrelloClone.repository;
 
-import com.ood.project.TrelloClone.model.UserDetails;
+import com.ood.project.TrelloClone.model.enitity.UserDetails;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

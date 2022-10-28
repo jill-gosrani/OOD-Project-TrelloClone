@@ -1,6 +1,13 @@
 package com.ood.project.TrelloClone.controller;
 
-import com.ood.project.TrelloClone.model.*;
+import com.ood.project.TrelloClone.model.enitity.Task;
+import com.ood.project.TrelloClone.model.enitity.TaskComment;
+import com.ood.project.TrelloClone.model.enitity.TaskHistoryTable;
+import com.ood.project.TrelloClone.model.enitity.TaskUsers;
+import com.ood.project.TrelloClone.model.task.AddCommentRequest;
+import com.ood.project.TrelloClone.model.task.AddUserRequest;
+import com.ood.project.TrelloClone.model.task.ModifyTask;
+import com.ood.project.TrelloClone.model.task.TaskResponse;
 import com.ood.project.TrelloClone.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +21,7 @@ import java.util.List;
 public class TaskController {
     private final TaskService taskService;
     @GetMapping("/getAll")
-    public ResponseEntity<List<Task>> getTasks(){
+    public ResponseEntity<List<TaskResponse>> getTasks(){
         return ResponseEntity.ok().body(taskService.getAllTask());
     }
     @PostMapping("/add")
@@ -26,12 +33,12 @@ public class TaskController {
         return ResponseEntity.ok().body(taskService.modifyTask(task));
     }
     @PutMapping("/addComment")
-    public ResponseEntity<Task> addComment(@RequestBody TaskComment taskComment) {
-        return ResponseEntity.ok().body(taskService.addComment(taskComment));
+    public ResponseEntity<TaskResponse> addComment(@RequestBody AddCommentRequest addCommentRequest) {
+        return ResponseEntity.ok().body(taskService.addComment(addCommentRequest));
     }
     @PostMapping("/addUsers")
-    public ResponseEntity<Task> addUsers(@RequestBody TaskUsers taskUsers) {
-        return ResponseEntity.ok().body(taskService.addUsers(taskUsers));
+    public ResponseEntity<TaskResponse> addUsers(@RequestBody AddUserRequest addUserRequest) {
+        return ResponseEntity.ok().body(taskService.addUsers(addUserRequest));
     }
 
     @GetMapping("/get")

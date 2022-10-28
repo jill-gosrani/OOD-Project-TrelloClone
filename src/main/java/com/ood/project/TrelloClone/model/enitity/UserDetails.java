@@ -1,4 +1,4 @@
-package com.ood.project.TrelloClone.model;
+package com.ood.project.TrelloClone.model.enitity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

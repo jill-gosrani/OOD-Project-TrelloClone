@@ -1,6 +1,6 @@
 package com.ood.project.TrelloClone.service;
 
-import com.ood.project.TrelloClone.model.UserDetails;
+import com.ood.project.TrelloClone.model.enitity.UserDetails;
 
 import java.util.List;
 

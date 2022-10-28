@@ -1,6 +1,6 @@
 package com.ood.project.TrelloClone.controller;
 
-import com.ood.project.TrelloClone.model.UserDetails;
+import com.ood.project.TrelloClone.model.enitity.UserDetails;
 import com.ood.project.TrelloClone.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
