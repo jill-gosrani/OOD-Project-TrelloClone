@@ -13,20 +13,24 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
     private final UserService userService;
+
     @GetMapping("/get")
-    public ResponseEntity<UserDetails> getUserById(@RequestParam long userID){
+    public ResponseEntity<UserDetails> getUserById(@RequestParam long userID) {
         return ResponseEntity.ok().body(userService.getUser(userID));
     }
+
     @GetMapping("/getAll")
-    public ResponseEntity<List<UserDetails>> getUsers(){
+    public ResponseEntity<List<UserDetails>> getUsers() {
         return ResponseEntity.ok().body(userService.getAllUsers());
     }
+
     @PostMapping("/add")
     public ResponseEntity<UserDetails> addUser(@RequestBody UserDetails userDetails) {
         return ResponseEntity.ok().body(userService.saveUser(userDetails));
     }
+
     @DeleteMapping("/delete")
-    public void deleteUser(@RequestParam long userID){
+    public void deleteUser(@RequestParam long userID) {
         userService.deleteUser(userID);
     }
 }

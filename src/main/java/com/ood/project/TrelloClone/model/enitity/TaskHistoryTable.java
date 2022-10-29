@@ -1,13 +1,15 @@
 package com.ood.project.TrelloClone.model.enitity;
 
+import com.ood.project.TrelloClone.model.task.Status;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 
 @Entity
 @Data
@@ -17,11 +19,15 @@ public class TaskHistoryTable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long taskHistoryID;
+
+    private long taskID;
     @NonNull
-    @ManyToOne
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "taskID")
-    private Task task;
+    private String taskName;
+    private String timeCreated;
+    private String ETC;
+    private Status status;
+    private String description;
+    private String timeUpdated;
     @NonNull
     private String modification;
     @NonNull

@@ -12,7 +12,9 @@ import java.util.List;
 public interface TaskUsersRepository extends JpaRepository<TaskUsers, Long> {
 
     List<TaskUsers> findByTask(Task task);
+
     List<TaskUsers> findByUserDetails(UserDetails userDetails);
+
     @Override
     TaskUsers save(TaskUsers taskUsers);
 }

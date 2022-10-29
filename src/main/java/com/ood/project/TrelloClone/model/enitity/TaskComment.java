@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-import org.springframework.data.jpa.repository.Modifying;
 
 import javax.persistence.*;
 
@@ -21,9 +20,16 @@ public class TaskComment {
     private long commentID;
     @NonNull
     private String comment;
+
+    @NonNull
+    @ManyToOne
+    @JoinColumn(name = "userID")
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private UserDetails userDetails;
     @NonNull
     @ManyToOne
     @JoinColumn(name = "taskID")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Task task;
+
 }

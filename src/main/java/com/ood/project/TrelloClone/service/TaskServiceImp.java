@@ -6,7 +6,6 @@ import com.ood.project.TrelloClone.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -16,7 +15,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class TaskServiceImp implements TaskService{
+public class TaskServiceImp implements TaskService {
     private final TaskRepository taskRepo;
     private final TaskCommentRepository taskCommentRepo;
     private final TaskUsersRepository taskUsersRepo;
@@ -26,6 +25,7 @@ public class TaskServiceImp implements TaskService{
     DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
     String formattedDate = myDateObj.format(myFormatObj);
     List<UserDetails> listOfUsers = new ArrayList<>();
+
     @Override
     public Task saveTask(Task task) {
         task.setTimeCreated(formattedDate);
@@ -61,6 +61,7 @@ public class TaskServiceImp implements TaskService{
         TaskResponse taskResponse = new TaskResponse();
         taskComment.setComment(addCommentRequest.getComment());
         taskComment.setTask(taskRepo.findByTaskID(addCommentRequest.getTaskID()));
+        taskComment.setUserDetails(userRepo.findByUserID(addCommentRequest.getUserID()));
         taskCommentRepo.save(taskComment);
         Task task = taskRepo.findByTaskID(addCommentRequest.getTaskID());
         task.setTimeUpdated(formattedDate);
@@ -88,35 +89,36 @@ public class TaskServiceImp implements TaskService{
     }
 
     @Override
-    public Task modifyTask(ModifyTask modifyTask) {
+    public Task modifyTask(ModifyTaskRequest modifyTaskRequest) {
 
-        Task taskFromRepo = taskRepo.findByTaskID(modifyTask.getTaskID());
+        Task taskFromRepo = taskRepo.findByTaskID(modifyTaskRequest.getTaskID());
 
-        if (modifyTask.getComment() != null) {
+        if (modifyTaskRequest.getComment() != null) {
             TaskComment taskComment = new TaskComment();
             taskComment.setTask(taskFromRepo);
-            taskComment.setComment(modifyTask.getComment());
+            taskComment.setComment(modifyTaskRequest.getComment());
+            taskComment.setUserDetails(userRepo.findByUserID(modifyTaskRequest.getUserID()));
             taskCommentRepo.save(taskComment);
-            taskFromRepo.setTaskName(modifyTask.getTaskName());
-            String modification = "Comment added: " + modifyTask.getComment();
+            String modification = "Comment added: " + modifyTaskRequest.getComment();
 
             saveToTaskHistory(taskFromRepo, modification, formattedDate);
 
         }
-        if (modifyTask.getUserID() != 0) {
+        if (modifyTaskRequest.getUserID() != 0) {
             TaskUsers taskUsers = new TaskUsers();
             taskUsers.setTask(taskFromRepo);
-            taskUsers.setUserDetails(userRepo.findByUserID(modifyTask.getUserID()));
+            taskUsers.setUserDetails(userRepo.findByUserID(modifyTaskRequest.getUserID()));
             taskUsersRepo.save(taskUsers);
-            String modification = "User added: " + modifyTask.getUserID();
+            String modification = "User added: " + modifyTaskRequest.getUserID();
             /*
             UserDetails userDetails = userRepo.findByUserID(modifyTask.getUserID());
-            listOfUsers.add(userDetails);*/
+            listOfUsers.add(userDetails);
+            */
             saveToTaskHistory(taskFromRepo, modification, formattedDate);
         }
-        if (modifyTask.getStringStatus() != null) {
-            if(taskUsersRepo.findByTask(taskFromRepo) != null){
-                if(modifyTask.getStringStatus().equals("move forward")){
+        if (modifyTaskRequest.getStringStatus() != null) {
+            if (taskUsersRepo.findByTask(taskFromRepo) != null) {
+                if (modifyTaskRequest.getStringStatus().equals("move forward")) {
                     taskFromRepo.setStatus(taskFromRepo.getStatus().transition());
                     String modification = "Status Changed: " + taskFromRepo.getStatus();
                     saveToTaskHistory(taskFromRepo, modification, formattedDate);
@@ -125,15 +127,15 @@ public class TaskServiceImp implements TaskService{
                 // exception
             }
         }
-        if (modifyTask.getTaskDescription() != null) {
-            taskFromRepo.setDescription(modifyTask.getTaskDescription());
-            String modification = "Modified description: " + modifyTask.getTaskDescription();
+        if (modifyTaskRequest.getTaskDescription() != null) {
+            taskFromRepo.setDescription(modifyTaskRequest.getTaskDescription());
+            String modification = "Modified description: " + modifyTaskRequest.getTaskDescription();
             saveToTaskHistory(taskFromRepo, modification, formattedDate);
 
         }
-        if (modifyTask.getTaskName() != null) {
-            taskFromRepo.setTaskName(modifyTask.getTaskName());
-            String modification = "New taskName: " + modifyTask.getTaskName();
+        if (modifyTaskRequest.getTaskName() != null) {
+            taskFromRepo.setTaskName(modifyTaskRequest.getTaskName());
+            String modification = "New taskName: " + modifyTaskRequest.getTaskName();
             saveToTaskHistory(taskFromRepo, modification, formattedDate);
         }
         taskFromRepo.setTimeUpdated(formattedDate);
@@ -142,10 +144,21 @@ public class TaskServiceImp implements TaskService{
 
     private void saveToTaskHistory(Task task, String modification, String value) {
         TaskHistoryTable taskHistoryTable = new TaskHistoryTable();
-        taskHistoryTable.setTask(task);
+        taskHistoryTable.setTaskID(task.getTaskID());
+        taskHistoryTable.setTaskName(task.getTaskName());
+        taskHistoryTable.setETC(task.getETC());
+        taskHistoryTable.setStatus(task.getStatus());
+        taskHistoryTable.setDescription(task.getDescription());
+        taskHistoryTable.setTimeCreated(task.getTimeCreated());
+        taskHistoryTable.setTimeUpdated(task.getTimeUpdated());
         taskHistoryTable.setModification(modification);
         taskHistoryTable.setTime(value);
         taskHistoryTableRepository.save(taskHistoryTable);
+    }
+
+    @Override
+    public void deleteTaskByID(long taskID) {
+        taskRepo.deleteById(taskID);
     }
 
     @Override
@@ -162,7 +175,6 @@ public class TaskServiceImp implements TaskService{
 
     @Override
     public List<TaskHistoryTable> getHistoryTable(long taskID) {
-        Task task = taskRepo.findByTaskID(taskID);
-        return taskHistoryTableRepository.findByTask(task);
+        return taskHistoryTableRepository.findByTaskID(taskID);
     }
 }

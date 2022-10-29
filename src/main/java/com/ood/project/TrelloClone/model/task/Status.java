@@ -5,6 +5,7 @@ public enum Status {
         public Status undo() {
             return DONE;
         }
+
         public Status transition() {
             return DOING;
         }
@@ -13,6 +14,7 @@ public enum Status {
         public Status undo() {
             return TODO;
         }
+
         public Status transition() {
             return DONE;
         }
@@ -21,10 +23,13 @@ public enum Status {
         public Status undo() {
             return DOING;
         }
+
         public Status transition() {
             return TODO;
         }
     };
+
     public abstract Status undo();
+
     public abstract Status transition();
 }

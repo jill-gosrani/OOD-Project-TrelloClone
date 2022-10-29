@@ -9,7 +9,10 @@ import java.util.List;
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
     Task findByTaskID(long taskID);
+
     @Override
     Task save(Task task);
+
     List<Task> findByOrderByStatusAsc();
+
 }

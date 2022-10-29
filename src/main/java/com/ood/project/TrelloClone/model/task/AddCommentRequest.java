@@ -6,4 +6,5 @@ import lombok.Data;
 public class AddCommentRequest {
     private long taskID;
     private String comment;
+    private long userID;
 }

@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ModifyTask {
+public class ModifyTaskRequest {
 
     long taskID;
     String stringStatus;
