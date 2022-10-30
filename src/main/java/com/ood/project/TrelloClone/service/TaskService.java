@@ -12,9 +12,9 @@ import com.ood.project.TrelloClone.model.task.TaskResponse;
 import java.util.List;
 
 public interface TaskService {
-    Task saveTask(Task task);
+    TaskResponse saveTask(Task task);
 
-    Task getTask(long taskID);
+    TaskResponse getTask(long taskID);
 
     List<TaskResponse> getAllTask();
 
@@ -22,7 +22,7 @@ public interface TaskService {
 
     TaskResponse addUsers(AddUserRequest addUserRequest);
 
-    Task modifyTask(ModifyTaskRequest modifyTaskRequest);
+    TaskResponse modifyTask(ModifyTaskRequest modifyTaskRequest);
 
     List<TaskComment> getComments(long taskID);
 

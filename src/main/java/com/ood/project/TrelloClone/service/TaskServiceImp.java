@@ -24,22 +24,47 @@ public class TaskServiceImp implements TaskService {
     LocalDateTime myDateObj = LocalDateTime.now();
     DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
     String formattedDate = myDateObj.format(myFormatObj);
-    List<UserDetails> listOfUsers = new ArrayList<>();
 
+    /**
+     * Takes task body
+     * Sets status to default value TODO
+     * sets Estimated Time To complete to 2 weeks
+     * Returns Task
+     * @param task
+     * @return
+     */
     @Override
-    public Task saveTask(Task task) {
+    public TaskResponse saveTask(Task task) {
         task.setTimeCreated(formattedDate);
         task.setStatus(Status.TODO);
         task.setETC("2 weeks");
-        return taskRepo.save(task);
+        TaskResponse taskResponse = new TaskResponse();
+        taskResponse.setTask(taskRepo.save(task));
+        taskResponse.setUserDetails(taskUsersRepo.findByTask(task).stream().map(TaskUsers::getUserDetails).collect(Collectors.toList()));
+        taskResponse.setComments(taskCommentRepo.findByTask(task).stream().map(TaskComment::getComment).collect(Collectors.toList()));
+        return taskResponse;
     }
 
+    /**
+     * Takes taskID
+     * Returns that task
+     * @param taskID
+     * @return
+     */
     @Override
-    public Task getTask(long taskID) {
-        return taskRepo.findByTaskID(taskID);
+    public TaskResponse getTask(long taskID) {
+        Task task = taskRepo.findByTaskID(taskID);
+        TaskResponse taskResponse = new TaskResponse();
+        taskResponse.setTask(task);
+        taskResponse.setComments(taskCommentRepo.findByTask(task).stream().map(TaskComment::getComment).collect(Collectors.toList()));
+        taskResponse.setUserDetails(taskUsersRepo.findByTask(task).stream().map(TaskUsers::getUserDetails).collect(Collectors.toList()));
+        return taskResponse;
     }
 
-
+    /**
+     * Fetches all takes in order of Status
+     * @return
+     */
     @Override
     public List<TaskResponse> getAllTask() {
 
@@ -55,6 +80,12 @@ public class TaskServiceImp implements TaskService {
         return taskResponseList;
     }
 
+    /**
+     * Takes taskID, userID, and comment
+     * saves the comment in the task
+     * @param addCommentRequest
+     * @return
+     */
     @Override
     public TaskResponse addComment(AddCommentRequest addCommentRequest) {
         TaskComment taskComment = new TaskComment();
@@ -72,6 +103,12 @@ public class TaskServiceImp implements TaskService {
         return taskResponse;
     }
 
+    /**
+     * Takes usersID, taskID
+     * Saves that user to task
+     * @param addUserRequest
+     * @return
+     */
     @Override
     public TaskResponse addUsers(AddUserRequest addUserRequest) {
         TaskResponse taskResponse = new TaskResponse();
@@ -88,11 +125,25 @@ public class TaskServiceImp implements TaskService {
         return taskResponse;
     }
 
+
+    /**
+     * Takes ModifyTaskRequest body
+     * ModifyTaskRequest Contains:
+     *     long taskID;
+     *     String stringStatus;
+     *     String taskName;
+     *     String taskDescription;
+     *     String comment;
+     *     long userID;
+     * returns task with modifications
+     * @param modifyTaskRequest
+     * @return
+     */
     @Override
-    public Task modifyTask(ModifyTaskRequest modifyTaskRequest) {
+    public TaskResponse modifyTask(ModifyTaskRequest modifyTaskRequest) {
 
         Task taskFromRepo = taskRepo.findByTaskID(modifyTaskRequest.getTaskID());
-
+        TaskResponse taskResponse = new TaskResponse();
         if (modifyTaskRequest.getComment() != null) {
             TaskComment taskComment = new TaskComment();
             taskComment.setTask(taskFromRepo);
@@ -100,9 +151,7 @@ public class TaskServiceImp implements TaskService {
             taskComment.setUserDetails(userRepo.findByUserID(modifyTaskRequest.getUserID()));
             taskCommentRepo.save(taskComment);
             String modification = "Comment added: " + modifyTaskRequest.getComment();
-
             saveToTaskHistory(taskFromRepo, modification, formattedDate);
-
         }
         if (modifyTaskRequest.getUserID() != 0) {
             TaskUsers taskUsers = new TaskUsers();
@@ -110,10 +159,6 @@ public class TaskServiceImp implements TaskService {
             taskUsers.setUserDetails(userRepo.findByUserID(modifyTaskRequest.getUserID()));
             taskUsersRepo.save(taskUsers);
             String modification = "User added: " + modifyTaskRequest.getUserID();
-            /*
-            UserDetails userDetails = userRepo.findByUserID(modifyTask.getUserID());
-            listOfUsers.add(userDetails);
-            */
             saveToTaskHistory(taskFromRepo, modification, formattedDate);
         }
         if (modifyTaskRequest.getStringStatus() != null) {
@@ -123,8 +168,6 @@ public class TaskServiceImp implements TaskService {
                     String modification = "Status Changed: " + taskFromRepo.getStatus();
                     saveToTaskHistory(taskFromRepo, modification, formattedDate);
                 }
-            } else {
-                // exception
             }
         }
         if (modifyTaskRequest.getTaskDescription() != null) {
@@ -139,9 +182,19 @@ public class TaskServiceImp implements TaskService {
             saveToTaskHistory(taskFromRepo, modification, formattedDate);
         }
         taskFromRepo.setTimeUpdated(formattedDate);
-        return taskRepo.save(taskFromRepo);
+        taskResponse.setTask(taskFromRepo);
+        taskResponse.setComments(taskCommentRepo.findByTask(taskFromRepo).stream().map(TaskComment::getComment).collect(Collectors.toList()));
+        taskResponse.setUserDetails(taskUsersRepo.findByTask(taskFromRepo).stream().map(TaskUsers::getUserDetails).collect(Collectors.toList()));
+        return taskResponse;
     }
 
+    /**
+     * Takes Task, Modifications, Value(TimeStamp)
+     * Saves History of the Task
+     * @param task
+     * @param modification
+     * @param value
+     */
     private void saveToTaskHistory(Task task, String modification, String value) {
         TaskHistoryTable taskHistoryTable = new TaskHistoryTable();
         taskHistoryTable.setTaskID(task.getTaskID());
@@ -156,23 +209,46 @@ public class TaskServiceImp implements TaskService {
         taskHistoryTableRepository.save(taskHistoryTable);
     }
 
+    /**
+     * Takes taskID
+     * Deletes that task
+     * @param taskID
+     */
     @Override
     public void deleteTaskByID(long taskID) {
         taskRepo.deleteById(taskID);
     }
 
+    /**
+     * Takes taskID
+     * Adds comment to the task
+     * @param taskID
+     * @return
+     */
     @Override
     public List<TaskComment> getComments(long taskID) {
         Task task = taskRepo.findByTaskID(taskID);
         return taskCommentRepo.findByTask(task);
     }
 
+    /**
+     * Takes taskID
+     * Returns the list of users on that task
+     * @param taskID
+     * @return
+     */
     @Override
     public List<TaskUsers> getTaskUsers(long taskID) {
         Task task = taskRepo.findByTaskID(taskID);
         return taskUsersRepo.findByTask(task);
     }
 
+    /**
+     * Takes taskID
+     * returns History of that task
+     * @param taskID
+     * @return
+     */
     @Override
     public List<TaskHistoryTable> getHistoryTable(long taskID) {
         return taskHistoryTableRepository.findByTaskID(taskID);
