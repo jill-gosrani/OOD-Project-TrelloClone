@@ -3,7 +3,7 @@ package com.ood.project.TrelloClone.model.task;
 public enum Status {
     TODO {
         public Status undo() {
-            return DONE;
+            return TODO;
         }
 
         public Status transition() {

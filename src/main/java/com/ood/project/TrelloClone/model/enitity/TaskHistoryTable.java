@@ -33,5 +33,5 @@ public class TaskHistoryTable {
     @NonNull
     private String time;
     private String tag;
-    private boolean isUndone = false;
+    private boolean isUndone;
 }

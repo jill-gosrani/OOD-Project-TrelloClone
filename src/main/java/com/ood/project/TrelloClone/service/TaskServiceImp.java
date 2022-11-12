@@ -26,6 +26,7 @@ public class TaskServiceImp implements TaskService {
     LocalDateTime myDateObj = LocalDateTime.now();
     DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
     String formattedDate = myDateObj.format(myFormatObj);
+    TaskHistoryTable taskFromHistory;
 
     /**
      * Takes task body
@@ -103,6 +104,7 @@ public class TaskServiceImp implements TaskService {
         taskResponse.setComments(taskCommentRepo.findByTask(task).stream().map(TaskComment::getComment).collect(Collectors.toList()));
         taskResponse.setUserDetails(taskUsersRepo.findByTask(task).stream().map(TaskUsers::getUserDetails).collect(Collectors.toList()));
         String modification = addCommentRequest.getComment();
+//        taskRepo.save(task);
         saveToTaskHistory(task,modification,formattedDate,"comment");
         return taskResponse;
     }
@@ -212,6 +214,7 @@ public class TaskServiceImp implements TaskService {
         taskHistoryTable.setModification(modification);
         taskHistoryTable.setTime(value);
         taskHistoryTable.setTag(tagg);
+        taskHistoryTable.setUndone(false);
         taskHistoryTableRepository.save(taskHistoryTable);
     }
 
@@ -227,10 +230,19 @@ public class TaskServiceImp implements TaskService {
 
     @Override
     public TaskResponse undo(long taskID) {
+
         List <TaskHistoryTable> taskFromHistoryList = taskHistoryTableRepository.findByTaskID(taskID);
-        TaskHistoryTable taskFromHistory = taskFromHistoryList.get(taskFromHistoryList.size()-1);
+        for (int x = taskFromHistoryList.size() -1; x>=0; x--){
+            if(!taskFromHistoryList.get(x).isUndone()){
+                taskFromHistory = taskFromHistoryList.get(x);
+                break;
+            }
+        }
+        System.out.println("wjcbkwcbiwbc"+ taskFromHistory);
+//
         TaskResponse taskResponse = new TaskResponse();
         Task undoTask = taskRepo.findByTaskID(taskFromHistory.getTaskID());
+
         List<TaskUsers> taskUsers = taskUsersRepo.findByTask(undoTask);
         List<TaskComment> taskComment = taskCommentRepo.findByTask(undoTask);
         String last = taskFromHistory.getTag();
@@ -238,6 +250,9 @@ public class TaskServiceImp implements TaskService {
 
         if (last.equals("taskName")) {
             undoTask.setTaskName(taskFromHistory.getTaskName());
+        }
+        if (last.equals("status")) {
+            undoTask.setStatus(undoTask.getStatus().undo());
         }
         if (last.equals("des")) {
             undoTask.setDescription(taskFromHistory.getModification());
@@ -260,9 +275,11 @@ public class TaskServiceImp implements TaskService {
         }
         taskRepo.save(undoTask);
         taskResponse.setTask(undoTask);
+        taskFromHistory.setUndone(true);
+        taskHistoryTableRepository.save(taskFromHistory);
         taskResponse.setComments(taskCommentRepo.findByTask(undoTask).stream().map(TaskComment::getComment).collect(Collectors.toList()));
         taskResponse.setUserDetails(taskUsersRepo.findByTask(undoTask).stream().map(TaskUsers::getUserDetails).collect(Collectors.toList()));
-        taskHistoryTableRepository.deleteById(taskFromHistory.getTaskHistoryID());
+
         return taskResponse;
     }
 
