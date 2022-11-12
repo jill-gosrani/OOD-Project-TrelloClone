@@ -31,4 +31,5 @@ public interface TaskService {
     List<TaskHistoryTable> getHistoryTable(long taskID);
 
     void deleteTaskByID(long taskID);
+    TaskResponse undo(long taskID);
 }

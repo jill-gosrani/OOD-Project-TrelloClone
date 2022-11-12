@@ -91,6 +91,11 @@ public class TaskController {
         return ResponseEntity.ok().body(taskService.getTask(taskID));
     }
 
+    @PutMapping("/undo")
+    public ResponseEntity<TaskResponse> undoTask(@RequestParam long taskID) {
+        return ResponseEntity.ok().body(taskService.undo(taskID));
+    }
+
     /**
      * Takes taskID
      * Returns list of Comments

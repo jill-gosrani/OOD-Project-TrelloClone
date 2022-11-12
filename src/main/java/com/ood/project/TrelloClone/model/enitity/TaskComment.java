@@ -21,12 +21,11 @@ public class TaskComment {
     @NonNull
     private String comment;
 
-    @NonNull
     @ManyToOne
     @JoinColumn(name = "userID")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private UserDetails userDetails;
-    @NonNull
+
     @ManyToOne
     @JoinColumn(name = "taskID")
     @OnDelete(action = OnDeleteAction.CASCADE)

@@ -9,6 +9,6 @@ public class AddCommentRequest {
     private long taskID;
     @NonNull
     private String comment;
-    @NonNull
+
     private long userID;
 }
