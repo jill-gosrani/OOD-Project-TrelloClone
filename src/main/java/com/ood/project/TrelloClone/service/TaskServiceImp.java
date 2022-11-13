@@ -171,7 +171,7 @@ public class TaskServiceImp implements TaskService {
         }
         if (modifyTaskRequest.getStringStatus() != null) {
             if (taskUsersRepo.findByTask(taskFromRepo) != null) {
-                if (modifyTaskRequest.getStringStatus().equals("move forward")) {
+                if (modifyTaskRequest.getStringStatus().equalsIgnoreCase("move forward")) {
                     taskFromRepo.setStatus(taskFromRepo.getStatus().transition());
                     String modification = taskFromRepo.getStatus().toString();
                     saveToTaskHistory(taskFromRepo, modification, formattedDate, "status");
@@ -179,12 +179,12 @@ public class TaskServiceImp implements TaskService {
             }
         }
         if (modifyTaskRequest.getTaskDescription() != null) {
-            String modification =  modifyTaskRequest.getTaskDescription();
+            String modification =  taskFromRepo.getDescription();
             saveToTaskHistory(taskFromRepo, modification, formattedDate, "des");
             taskFromRepo.setDescription(modifyTaskRequest.getTaskDescription());
         }
         if (modifyTaskRequest.getTaskName() != null) {
-            String modification =  modifyTaskRequest.getTaskName();
+            String modification =  taskFromRepo.getTaskName();
             saveToTaskHistory(taskFromRepo, modification, formattedDate, "taskName");
             taskFromRepo.setTaskName(modifyTaskRequest.getTaskName());
         }
@@ -212,7 +212,7 @@ public class TaskServiceImp implements TaskService {
         taskHistoryTable.setTimeCreated(task.getTimeCreated());
         taskHistoryTable.setTimeUpdated(task.getTimeUpdated());
         taskHistoryTable.setModification(modification);
-        taskHistoryTable.setTime(value);
+        taskHistoryTable.setTimeUpdated(value);
         taskHistoryTable.setTag(tagg);
         taskHistoryTable.setUndone(false);
         taskHistoryTableRepository.save(taskHistoryTable);
@@ -228,6 +228,12 @@ public class TaskServiceImp implements TaskService {
         taskRepo.deleteById(taskID);
     }
 
+    /**
+     * Takes taskID
+     * Undos to the previous version of the task.
+     * @param taskID
+     * @return
+     */
     @Override
     public TaskResponse undo(long taskID) {
 
@@ -238,8 +244,7 @@ public class TaskServiceImp implements TaskService {
                 break;
             }
         }
-        System.out.println("wjcbkwcbiwbc"+ taskFromHistory);
-//
+
         TaskResponse taskResponse = new TaskResponse();
         Task undoTask = taskRepo.findByTaskID(taskFromHistory.getTaskID());
 
@@ -249,7 +254,7 @@ public class TaskServiceImp implements TaskService {
 
 
         if (last.equals("taskName")) {
-            undoTask.setTaskName(taskFromHistory.getTaskName());
+            undoTask.setTaskName(taskFromHistory.getModification());
         }
         if (last.equals("status")) {
             undoTask.setStatus(undoTask.getStatus().undo());
@@ -273,6 +278,7 @@ public class TaskServiceImp implements TaskService {
                 }
             }
         }
+        undoTask.setTimeUpdated(formattedDate);
         taskRepo.save(undoTask);
         taskResponse.setTask(undoTask);
         taskFromHistory.setUndone(true);

@@ -30,8 +30,6 @@ public class TaskHistoryTable {
     private String timeUpdated;
     @NonNull
     private String modification;
-    @NonNull
-    private String time;
     private String tag;
     private boolean isUndone;
 }
